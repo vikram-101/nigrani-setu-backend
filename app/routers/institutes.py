@@ -10,7 +10,8 @@ router = APIRouter(prefix="/institutes", tags=["institutes"])
 
 def _to_out(doc: dict) -> InstituteOut:
     return InstituteOut(id=doc["_id"], name=doc["name"], location=doc["location"],
-                         beneficiaries=doc["beneficiaries"], rtsp_url=doc.get("rtsp_url"))
+                         beneficiaries=doc["beneficiaries"], rtsp_url=doc.get("rtsp_url"),
+                         latitude=doc.get("latitude"), longitude=doc.get("longitude"))
 
 
 @router.post("", response_model=InstituteOut, status_code=status.HTTP_201_CREATED)
@@ -21,6 +22,8 @@ async def create_institute(payload: InstituteCreate, current_user: dict = Depend
         "location": payload.location,
         "beneficiaries": payload.beneficiaries,
         "rtsp_url": payload.rtsp_url,
+        "latitude": payload.latitude,
+        "longitude": payload.longitude,
     }
     await institutes_collection.insert_one(doc)
     return _to_out(doc)

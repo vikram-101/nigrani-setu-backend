@@ -16,5 +16,6 @@ class ReportOut(BaseModel):
     photo_url: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    distance_from_institute_meters: Optional[float] = None
     submitted_at: str
     status: str  # "verified" | "flagged"
