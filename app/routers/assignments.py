@@ -19,12 +19,16 @@ def _to_out(doc: dict) -> AssignmentOut:
 @router.post("/draw", response_model=AssignmentOut)
 async def run_random_draw(current_user: dict = Depends(require_role("admin"))):
     institutes = await institutes_collection.find().to_list(length=500)
-    inspectors = await inspectors_collection.find().to_list(length=500)
+    # Only draw from inspectors who have actually signed up (their profile
+    # got linked to a real login account at /auth/signup/inspector). An
+    # inspector added manually by Admin with no account yet would never be
+    # able to see this assignment, so they're excluded from the pool.
+    inspectors = await inspectors_collection.find({"user_id": {"$nin": ["", None]}}).to_list(length=500)
 
     if not institutes or not inspectors:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Register at least one institute and one inspector before running a draw",
+            detail="Need at least one institute, and at least one inspector who has signed up (not just been pre-registered by Admin), before running a draw",
         )
 
     # The actual "no one can predict who inspects whom" logic. random.choice
